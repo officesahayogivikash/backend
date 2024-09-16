@@ -1,10 +1,11 @@
 require("dotenv").config();
 const express = require("express");
+const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const app = express();
 app.use(cookieParser());
 const cors = require("cors");
-require("../server/db/conn");
+// require("../server/db/conn");
 const PORT = process.env.PORT || 5004;
 const userRoutes = require('../server/routes/userRoutes/userRoutes');
 
@@ -28,6 +29,15 @@ app.use('/api/gst',gst);
 app.use('/api/org',org)
 app.use("/api/OS", osInternalRoutes);
 
-app.listen(PORT, () => {
-    console.log(`Server started at port no ${PORT}`);
-});
+mongoose.connect(process.env.DATABASE)
+    .then(() => {
+        console.log("Database connected");
+
+        // Start the server only after successful DB connection
+        app.listen(PORT, () => {
+            console.log(`Server started at port no ${PORT}`);
+        });
+    })
+    .catch(err => {
+        console.log("Error connecting to the database", err);
+    });
